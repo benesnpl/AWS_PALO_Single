@@ -118,7 +118,7 @@ variable "private_eni_1" {
 }
 
 variable "ha_eni_1" {
-	default = "10.160.236.36"
+	default = "10.160.205.36"
 }
 
 variable "aws_access_key_id" {
