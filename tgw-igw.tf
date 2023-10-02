@@ -1,3 +1,6 @@
+# TGW creation
+
+
 resource "aws_ec2_transit_gateway" "main_tgw" {
   description                                           = "TGW"
   auto_accept_shared_attachments                        = "enable"
@@ -7,6 +10,9 @@ resource "aws_ec2_transit_gateway" "main_tgw" {
    Name                                                 = join("", [var.coid, "-", var.aws_region, "-TGW"])
   }
 }
+
+
+# Create security VPC attachment
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "tgw-main" {
   depends_on                                            = [aws_subnet.TGW,aws_ec2_transit_gateway.main_tgw]
@@ -20,6 +26,8 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "tgw-main" {
    Name                                                 = join("", [var.coid, "-", var.aws_region, "-securityVPC-Attach"])
   }
 }
+
+# Create Internet Gateway
 
 resource "aws_internet_gateway" "main_igw" {
   depends_on                                            = [aws_ec2_transit_gateway.main_tgw,aws_internet_gateway.main_igw]
