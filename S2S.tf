@@ -20,9 +20,12 @@ resource "aws_vpn_connection" "Oakbrook" {
 
 data "aws_ec2_transit_gateway_vpn_attachment" "oak_attach" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
-  transit_gateway_id = aws_ec2_transit_gateway.main_tgw.id
-  vpn_connection_id  = aws_vpn_connection.Oakbrook.id
-  tags = {
-   Name                                                 = join("", [var.coid, "-Oakbrook-VPN"])
-  }
+  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
+  vpn_connection_id                             = aws_vpn_connection.Oakbrook.id
+}
+
+resource "aws_ec2_tag" "tag_vpn_attach" {
+  resource_id = data.aws_ec2_transit_gateway_vpn_attachment.oak_attach.id
+  key         = "Name"
+  value       = join("", [var.coid, "-", var.aws_region, "-Oakbrook_VPN"])
 }
