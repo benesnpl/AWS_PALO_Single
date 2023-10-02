@@ -113,7 +113,7 @@ resource "aws_ec2_transit_gateway_route" "oak_vpn_2" {
 
 resource "aws_ec2_transit_gateway_route_table" "inboundvpc" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
-  transit_gateway_id                            = aws_ec2_transit_gateway.aws_ec2_transit_gateway.id
+  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
   tags = {
    Name                                                 = join("", [var.coid, "-Inbound-VPC"])
   }
@@ -121,9 +121,17 @@ resource "aws_ec2_transit_gateway_route_table" "inboundvpc" {
 
 resource "aws_ec2_transit_gateway_route_table" "inboundvpn" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
-  transit_gateway_id                            = aws_ec2_transit_gateway.aws_ec2_transit_gateway.id
+  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
   tags = {
    Name                                                 = join("", [var.coid, "-Inbound-VPN"])
+  }
+}
+
+resource "aws_ec2_transit_gateway_route_table" "outbound" {
+  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
+  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
+  tags = {
+   Name                                                 = join("", [var.coid, "-Outbound"])
   }
 }
 
