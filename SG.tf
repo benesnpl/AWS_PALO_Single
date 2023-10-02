@@ -1,3 +1,5 @@
+### Templates for SG - Values from variable sets ####
+
 resource "aws_security_group" "public_sg" {
   name        = "public_sg"
   description = "public SG"
