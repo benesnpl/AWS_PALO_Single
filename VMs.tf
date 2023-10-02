@@ -1,3 +1,5 @@
+# Get Image ID from Market Place
+
 data "aws_ami" "panorama_ami" {
   most_recent                               = true
   owners                                    = ["aws-marketplace"]
@@ -7,6 +9,8 @@ data "aws_ami" "panorama_ami" {
     values                                  = ["PA-VM-AWS-10.1.6-h6-7064e142-2859-40a4-ab62-8b0996b842e9*"]
   }
 } 
+
+# Create the single Firewall
 
 resource "aws_instance" "vm1" {
   ami                                  = data.aws_ami.panorama_ami.id
@@ -34,6 +38,8 @@ resource "aws_instance" "vm1" {
     delete_on_termination = true
   }
 }
+
+#### Interface Creation (HA, MGMT, Private, Public)
 
 resource "aws_network_interface" "ha1" {
   subnet_id                                 = aws_subnet.ha.id
