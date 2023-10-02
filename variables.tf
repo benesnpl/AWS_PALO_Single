@@ -100,7 +100,7 @@ variable "subnets_cidr_tgw" {
 }
 
 variable "subnets_cidr_ha" {
-	default = "10.160.205.32/28"
+	default = "10.160.205.48/28"
 }
 
 variable "mgm_ip_address1" {
@@ -118,7 +118,7 @@ variable "private_eni_1" {
 }
 
 variable "ha_eni_1" {
-	default = "10.160.205.36"
+	default = "10.160.205.52"
 }
 
 variable "aws_access_key_id" {
