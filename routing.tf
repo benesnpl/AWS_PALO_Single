@@ -119,7 +119,7 @@ resource "aws_ec2_transit_gateway_route" "firewall_1" {
   blackhole                                     = false
 }
 
-resource "aws_ec2_transit_gateway_route" "firewall_1" {
+resource "aws_ec2_transit_gateway_route" "firewall_2" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
   destination_cidr_block                        = "0.0.0.0/0"
   transit_gateway_attachment_id                 = aws_ec2_transit_gateway_vpc_attachment.tgw-main.id
