@@ -1,3 +1,5 @@
+### Needed Public IP creation ###
+
 resource "aws_eip" "mng1" {
   vpc                                       = true
   tags = {
