@@ -100,7 +100,7 @@ variable "subnets_cidr_tgw" {
 }
 
 variable "subnets_cidr_ha" {
-	default = "10.160.236.32/28"
+	default = "10.160.205.32/28"
 }
 
 variable "mgm_ip_address1" {
