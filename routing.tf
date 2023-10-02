@@ -1,7 +1,7 @@
 #Route tables
 
 resource "aws_route_table" "mgmt_rt" {
-  depends_on = [aws_internet_gateway.main_igw,aws_ec2_transit_gateway.main_tgw]
+  depends_on = [aws_vpn_connection.Oakbrook,aws_internet_gateway.main_igw,aws_ec2_transit_gateway.main_tgw]
   vpc_id = aws_vpc.main_vpc.id
   
   route {
@@ -33,7 +33,7 @@ resource "aws_route_table_association" "mgmt" {
 
 
 resource "aws_route_table" "private_rt" {
-  depends_on = [aws_internet_gateway.main_igw,aws_ec2_transit_gateway.main_tgw]
+  depends_on = [aws_vpn_connection.Oakbrook,aws_internet_gateway.main_igw,aws_ec2_transit_gateway.main_tgw]
   vpc_id = aws_vpc.main_vpc.id
   
   route {
@@ -99,7 +99,7 @@ resource "aws_ec2_transit_gateway_route" "oak_vpn_1" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
   destination_cidr_block                        = "10.159.94.0/23"
   transit_gateway_attachment_id                 = data.aws_ec2_transit_gateway_vpn_attachment.oak_attach.id
-  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.inboundvpn.id
+  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.outbound.id
   blackhole                                     = false
 }
 
@@ -107,7 +107,15 @@ resource "aws_ec2_transit_gateway_route" "oak_vpn_2" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
   destination_cidr_block                        = "100.70.0.0/15"
   transit_gateway_attachment_id                 = data.aws_ec2_transit_gateway_vpn_attachment.oak_attach.id
-  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.inboundvpn.id
+  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.outbound.id
+  blackhole                                     = false
+}
+
+resource "aws_ec2_transit_gateway_route" "vpc_cidr" {
+  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
+  destination_cidr_block                        = var.vpc_cidr
+  transit_gateway_attachment_id                 = aws_ec2_transit_gateway_vpc_attachment.tgw-main.id
+  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.outbound.id
   blackhole                                     = false
 }
 
