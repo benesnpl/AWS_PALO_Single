@@ -1,4 +1,4 @@
-#Route tables
+#### LOCAL ROUTING TABLES CREATION #####
 
 resource "aws_route_table" "mgmt_rt" {
   depends_on = [aws_vpn_connection.Oakbrook,aws_internet_gateway.main_igw,aws_ec2_transit_gateway.main_tgw]
@@ -95,6 +95,55 @@ resource "aws_route_table_association" "tgw1" {
   route_table_id = aws_route_table.tgw_rt.id
 }
 
+
+#### TGW ROUTING TABLES CREATION (*3) ####
+
+resource "aws_ec2_transit_gateway_route_table" "inboundvpc" {
+  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
+  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
+  tags = {
+   Name                                                 = join("", [var.coid, "-Inbound-VPC"])
+  }
+}
+
+resource "aws_ec2_transit_gateway_route_table" "inboundvpn" {
+  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
+  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
+  tags = {
+   Name                                                 = join("", [var.coid, "-Inbound-VPN"])
+  }
+}
+
+resource "aws_ec2_transit_gateway_route_table" "outbound" {
+  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
+  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
+  tags = {
+   Name                                                 = join("", [var.coid, "-Outbound"])
+  }
+}
+
+#### TGW ATTACHMENTS ASSOCIATION WITH TGW ROUTING TABLES
+
+# Associate Security VPC with Outbound
+
+resource "aws_ec2_transit_gateway_route_table_association" "associate_vpc" {
+  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpc]
+  transit_gateway_attachment_id                 = aws_ec2_transit_gateway_vpc_attachment.tgw-main.id
+  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.outbound.id
+}
+
+# Associate VPN with Inbound VPN
+
+resource "aws_ec2_transit_gateway_route_table_association" "associate_vpn" {
+  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
+  transit_gateway_attachment_id                 = data.aws_ec2_transit_gateway_vpn_attachment.oak_attach.id
+  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.inboundvpn.id
+}
+
+
+#### TGW RT routes ####
+
+
 resource "aws_ec2_transit_gateway_route" "oak_vpn_1" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
   destination_cidr_block                        = "10.159.94.0/23"
@@ -135,38 +184,3 @@ resource "aws_ec2_transit_gateway_route" "vpc_cidr" {
   blackhole                                     = false
 }
 
-resource "aws_ec2_transit_gateway_route_table" "inboundvpc" {
-  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
-  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
-  tags = {
-   Name                                                 = join("", [var.coid, "-Inbound-VPC"])
-  }
-}
-
-resource "aws_ec2_transit_gateway_route_table" "inboundvpn" {
-  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
-  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
-  tags = {
-   Name                                                 = join("", [var.coid, "-Inbound-VPN"])
-  }
-}
-
-resource "aws_ec2_transit_gateway_route_table" "outbound" {
-  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw]
-  transit_gateway_id                            = aws_ec2_transit_gateway.main_tgw.id
-  tags = {
-   Name                                                 = join("", [var.coid, "-Outbound"])
-  }
-}
-
-resource "aws_ec2_transit_gateway_route_table_association" "associate_vpc" {
-  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpc]
-  transit_gateway_attachment_id                 = aws_ec2_transit_gateway_vpc_attachment.tgw-main.id
-  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.outbound.id
-}
-
-resource "aws_ec2_transit_gateway_route_table_association" "associate_vpn" {
-  depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
-  transit_gateway_attachment_id                 = data.aws_ec2_transit_gateway_vpn_attachment.oak_attach.id
-  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.inboundvpn.id
-}
