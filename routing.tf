@@ -162,11 +162,11 @@ resource "aws_ec2_transit_gateway_route_table" "outbound" {
 resource "aws_ec2_transit_gateway_route_table_association" "associate_vpc" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpc]
   transit_gateway_attachment_id                 = aws_ec2_transit_gateway_vpc_attachment.tgw-main.id
-  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.inboundvpc.id
+  transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.outbound.id
 }
 
 resource "aws_ec2_transit_gateway_route_table_association" "associate_vpn" {
   depends_on                                    = [aws_vpn_connection.Oakbrook, aws_ec2_transit_gateway.main_tgw,aws_ec2_transit_gateway_route_table.inboundvpn]
-  transit_gateway_attachment_id                 = aws_ec2_transit_gateway_vpc_attachment.tgw-main.id
+  transit_gateway_attachment_id                 = data.aws_ec2_transit_gateway_vpn_attachment.oak_attach.id
   transit_gateway_route_table_id                = aws_ec2_transit_gateway_route_table.inboundvpn.id
 }
